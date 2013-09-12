@@ -16,22 +16,30 @@ namespace Pretzel.Logic.Commands
     [PartCreationPolicy(CreationPolicy.Shared)]
     public class CommandParameters
     {
-        readonly IEnumerable<IHaveCommandLineArgs> commandLineExtensions;
-
         [ImportingConstructor]
         public CommandParameters([ImportMany] IEnumerable<IHaveCommandLineArgs> commandLineExtensions)
         {
-            this.commandLineExtensions = commandLineExtensions;
             GetDefaultValue("Port", s => decimal.TryParse(s, out port));
+            GetDefaultValue("LaunchBrowser", s => bool.TryParse(s, out launchBrowser));
+            LaunchBrowser = true;
 
             Settings = new OptionSet
-                                {
-                                    { "t|template=", "The templating engine to use", v => Template = v },
-                                    { "d|directory=", "The path to site directory", p => Path = p },
-                                    { "p|port=", "The port to test the site locally", p => decimal.TryParse(p, out port) },
-                                    { "i|import=", "The import type", v => ImportType = v }, // TODO: necessary?
-                                    { "f|file=", "Path to import file", v => ImportPath = v },
-                                };
+                {
+                    {"t|template=", "The templating engine to use", v => Template = v},
+                    {"d|directory=", "The path to site directory", p => Path = p},
+                    {"p|port=", "The port to test the site locally", p => decimal.TryParse(p, out port)},
+                    {"i|import=", "The import type", v => ImportType = v}, // TODO: necessary?
+                    {"f|file=", "Path to import file", v => ImportPath = v},
+                    {"nobrowser", "Do not launch a browser", v => LaunchBrowser = false},
+                    { "withproject", "Includes a layout VS Solution, to give intellisence when editing razor layout files", v=>WithProject = (v!=null)},
+                    { "wiki", "Creates a wiki instead of a blog (razor template only)", v=>Wiki = (v!=null)}
+                };
+
+            // Allow extensions to register command line args
+            foreach (var commandLineExtension in commandLineExtensions)
+            {
+                commandLineExtension.UpdateOptions(Settings);
+            }
         }
 
         private void GetDefaultValue(string propertyName, Action<string> converter)
@@ -42,12 +50,21 @@ namespace Pretzel.Logic.Commands
         }
 
         public string Path { get; private set; }
-        public string Template { get; set; }
+        public string Template { get; private set; }
         public string ImportPath { get; private set; }
-        public string ImportType { get; set; }
+        public string ImportType { get; private set; }
+        public bool WithProject { get; private set; }
+        public bool Wiki { get; private set; }
 
-        private decimal port;
+        bool launchBrowser;
+        [DefaultValue(true)]
+        public bool LaunchBrowser
+        {
+            get { return launchBrowser; }
+            set { launchBrowser = value; }
+        }
 
+        decimal port;
         [DefaultValue(8080)]
         public decimal Port
         {
@@ -59,12 +76,6 @@ namespace Pretzel.Logic.Commands
 
         public void Parse(IEnumerable<string> arguments)
         {
-            // Allow extensions to register command line args
-            foreach (var commandLineExtension in commandLineExtensions)
-            {
-                commandLineExtension.UpdateOptions(Settings);
-            }
-
             var argumentList = arguments.ToArray();
 
             Settings.Parse(argumentList);
@@ -78,10 +89,7 @@ namespace Pretzel.Logic.Commands
                     : System.IO.Path.Combine(Directory.GetCurrentDirectory(), firstArgument);
             }
 
-            if (string.IsNullOrWhiteSpace(Path))
-            {
-                Path = Directory.GetCurrentDirectory();
-            }
+            Path = string.IsNullOrWhiteSpace(Path) ? Directory.GetCurrentDirectory() : System.IO.Path.GetFullPath(Path);
         }
 
         public void DetectFromDirectory(IDictionary<string, ISiteEngine> engines, SiteContext context)
@@ -113,11 +121,29 @@ namespace Pretzel.Logic.Commands
             Settings.WriteOptionDescriptions(textWriter);
             var output = textWriter.ToString();
 
-            foreach (var line in output.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries))
+            var strings = RecombineMultilineArgs(output.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries));
+
+            foreach (var line in strings)
             {
                 if (args.Any(line.Contains))
                 {
                     writer.WriteLine(line);
+                }
+            }
+        }
+
+        private IEnumerable<string> RecombineMultilineArgs(string[] split)
+        {
+            for (int i = 0; i < split.Length; i++)
+            {
+                if (i + 1 < split.Length && !split[i+1].TrimStart().StartsWith("-"))
+                {
+                    yield return split[i] + "\r\n" + split[i + 1];
+                    i++;
+                }
+                else
+                {
+                    yield return split[i];
                 }
             }
         }

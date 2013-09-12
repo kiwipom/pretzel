@@ -1,4 +1,4 @@
-<Project ToolsVersion="4.0" DefaultTargets="Chocolatey" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Test;Chocolatey" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <!-- TODO: mono build -->
   <!-- TODO: package step to merge code into one binary -->
@@ -6,17 +6,37 @@
   
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
-    <Version Condition="'$(Version)'==''">0.0.0.3</Version>
+    <Version>$(BUILD_NUMBER)</Version>
+    <GitCommitHash>$(BUILD_VCS_NUMBER)</GitCommitHash>
+    <GitCommitHash Condition=" '$(GitCommitHash)' != '' ">$(GitCommitHash.Substring(0, 8))</GitCommitHash>
+    <!-- dev config -->
+    <Version Condition=" '$(Version)' == '' ">0.0.0.1</Version>
     <ArtifactsDir>$(MSBuildProjectDirectory)\artifacts\</ArtifactsDir>
     <SourceDir>$(MSBuildProjectDirectory)\src\</SourceDir>
   </PropertyGroup>
 
   <UsingTask AssemblyFile=".\tools\xunit\xunit.runner.msbuild.dll" TaskName="Xunit.Runner.MSBuild.xunit" />
 
+  <Target Name="Version">
+
+    <GitVersion LocalPath="$(SourceDir)\..\" Condition=" '$(GitCommitHash)' == '' ">
+      <Output TaskParameter="CommitHash" PropertyName="GitCommitHash" />
+    </GitVersion>
+
+    <AssemblyInfo CodeLanguage="CS" 
+                  OutputFile="$(SourceDir)\Pretzel\Properties\AssemblyInfo.cs"
+                  AssemblyCopyright="Copyright © Code52 2013" 
+                  ComVisible="false" 
+                  AssemblyInformationalVersion="Built from hash '$(GitCommitHash)'" />
+
+    <Message Text="Building version $(Version) from hash $(GitCommitHash)"  Importance="High" />
+
+  </Target>
+
   <Target Name="Compile">
     <Message Text="=========== Compile ===========" Importance="High" />
     
-    <MSBuild Projects="$(SourceDir)\Pretzel.sln" Properties="Configuration=$(Configuration)" />
+    <MSBuild Projects="$(SourceDir)\Pretzel.sln" Properties="Configuration=$(Configuration)" Targets="Rebuild" />
 
     <MakeDir Directories="$(ArtifactsDir)" />
 
@@ -41,17 +61,20 @@
     <Message Text="=========== Tests Passed ===========" Importance="High" />
   </Target>
 
-  <Target Name="Chocolatey" DependsOnTargets="Test">
+  <Target Name="Chocolatey">
 
     <Message Text="=========== Chocolatey Package ===========" Importance="High" />
 
     <ItemGroup>
       <NuGet Include="$(MSBuildProjectDirectory)\src\.Nuget\NuGet.exe" />
+	  <OldPackages Include="$(MSBuildProjectDirectory)\artifacts\*.nupkg" />
     </ItemGroup>
 
     <PropertyGroup>
       <ChocolateyInstall>$(MSBuildProjectDirectory)\build\chocolatey\tools\chocolateyInstall.ps1</ChocolateyInstall>
     </PropertyGroup>
+	
+	<Delete Files="@(OldPackages)" />
 
     <MakeDir Directories="$(MSBuildProjectDirectory)\build\chocolatey\tools" />
 

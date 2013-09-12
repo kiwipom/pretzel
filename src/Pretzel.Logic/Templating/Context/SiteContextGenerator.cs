@@ -78,7 +78,7 @@ namespace Pretzel.Logic.Templating.Context
                     yield return new NonProcessedPage
                                      {
                                          File = file,
-                                         Filepath = Path.Combine(context.OutputFolder, file)
+                                         Filepath = Path.Combine(context.OutputFolder, MapToOutputPath(context, file))
                                      };
                 }
                 else
@@ -155,9 +155,11 @@ namespace Pretzel.Logic.Templating.Context
             return postFirstLine != null && postFirstLine.StartsWith("---");
         }
 
-        private static bool IsSpecialPath(string relativePath)
+        public static bool IsSpecialPath(string relativePath)
         {
-            return relativePath.StartsWith("_") || (relativePath.StartsWith(".") && relativePath != ".htaccess");
+            return relativePath.StartsWith("_") 
+                    || (relativePath.StartsWith(".") && relativePath != ".htaccess") 
+                    || relativePath.EndsWith(".TMP", StringComparison.OrdinalIgnoreCase);
         }
 
         private Page CreatePage(SiteContext context, IDictionary<string, object> config, string file, bool isPost)
@@ -168,20 +170,28 @@ namespace Pretzel.Logic.Templating.Context
                     return pageCache[file];
                 var contents = SafeReadContents(file);
                 var header = contents.YamlHeader();
+
+                if (header.ContainsKey("published") && header["published"].ToString().ToLower() == "false")
+                {
+                    return null;
+                }
+
                 var page = new Page
                                 {
                                     Title = header.ContainsKey("title") ? header["title"].ToString() : "this is a post",
                                     Date = header.ContainsKey("date") ? DateTime.Parse(header["date"].ToString()) : file.Datestamp(),
                                     Content = RenderContent(file, contents, header),
-                                    Filepath = GetPathWithTimestamp(context.OutputFolder, file),
+                                    Filepath = isPost ? GetPathWithTimestamp(context.OutputFolder, file) : GetFilePathForPage(context, file),
                                     File = file,
                                     Bag = header,
                                 };
 
                 if (header.ContainsKey("permalink"))
                     page.Url = EvaluatePermalink(header["permalink"].ToString(), page);
-                else if (config.ContainsKey("permalink"))
+                else if (isPost && config.ContainsKey("permalink"))
                     page.Url = EvaluatePermalink(config["permalink"].ToString(), page);
+                else
+                    page.Url = EvaluateLink(context, page);
 
                 // The GetDirectoryPage method is reentrant, we need a cache to stop a stack overflow :)
                 pageCache.Add(file, page);
@@ -205,6 +215,28 @@ namespace Pretzel.Logic.Templating.Context
             }
 
             return null;
+        }
+
+        private string GetFilePathForPage(SiteContext context, string file)
+        {
+            return Path.Combine(context.OutputFolder, MapToOutputPath(context, file));
+        }
+
+        private string EvaluateLink(SiteContext context, Page page)
+        {
+            var directory = Path.GetDirectoryName(page.Filepath);
+            var relativePath = directory.Replace(context.OutputFolder, string.Empty);
+            var fileExtension = Path.GetExtension(page.Filepath);
+
+            var htmlExtensions = new[] {".markdown", ".mdown", ".mkdn", ".mkd", ".md", ".textile"};
+
+            if (htmlExtensions.Contains(fileExtension, StringComparer.InvariantCultureIgnoreCase))
+                fileExtension = ".html";
+
+            var link = relativePath.Replace('\\', '/').TrimStart('/') + "/" + GetPageTitle(page.Filepath) + fileExtension;
+            if (!link.StartsWith("/"))
+                link = "/" + link;
+            return link;
         }
 
         private IEnumerable<Page> GetDirectoryPages(SiteContext context, IDictionary<string, object> config, string forDirectory, bool isPost)
@@ -249,6 +281,12 @@ namespace Pretzel.Logic.Templating.Context
             }
             catch (IOException)
             {
+                if (SanityCheck.IsLockedByAnotherProcess(file))
+                {
+                    Tracing.Info(String.Format("File {0} is locked by another process. Skipping", file));
+                    return string.Empty;
+                }
+
                 var fileInfo = fileSystem.FileInfo.FromFileName(file);
                 var tempFile = Path.Combine(Path.GetTempPath(), fileInfo.Name);
                 try

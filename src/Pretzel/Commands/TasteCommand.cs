@@ -4,8 +4,8 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
 using Pretzel.Logic.Commands;
+using Pretzel.Logic.Extensibility;
 using Pretzel.Logic.Extensions;
-using Pretzel.Logic.Minification;
 using Pretzel.Logic.Templating;
 using Pretzel.Logic.Templating.Context;
 using Pretzel.Modules;
@@ -18,14 +18,10 @@ namespace Pretzel.Commands
     {
         private ISiteEngine engine;
 #pragma warning disable 649
-        [Import]
-        TemplateEngineCollection templateEngines;
-        [Import]
-        SiteContextGenerator Generator { get; set; }
-        [Import]
-        CommandParameters parameters;
-        [ImportMany]
-        private IEnumerable<ITransform> transforms;
+        [Import] TemplateEngineCollection templateEngines;
+        [Import] SiteContextGenerator Generator { get; set; }
+        [Import] CommandParameters parameters;
+        [ImportMany] private IEnumerable<ITransform> transforms;
 #pragma warning restore 649
 
         public void Execute(IEnumerable<string> arguments)
@@ -50,9 +46,8 @@ namespace Pretzel.Commands
                 return;
             }
 
-
             engine.Initialize();
-            engine.Process(context);
+            engine.Process(context, skipFileOnError: true);
             foreach (var t in transforms)
                 t.Transform(context);
             var watcher = new SimpleFileSystemWatcher();
@@ -61,16 +56,24 @@ namespace Pretzel.Commands
             var w = new WebHost(engine.GetOutputDirectory(parameters.Path), new FileContentProvider(), Convert.ToInt32(parameters.Port));
             w.Start();
 
-
-            Tracing.Info(string.Format("Launching http://localhost:{0}/ to test the site.", parameters.Port));
-            try
+            var url = string.Format("http://localhost:{0}/", parameters.Port);
+            if (parameters.LaunchBrowser)
             {
-                Process.Start(string.Format("http://localhost:{0}", parameters.Port));
+                Tracing.Info(string.Format("Opening {0} in default browser...", url));
+                try
+                {
+                    Process.Start(url);
+                }
+                catch (Exception)
+                {
+                    Tracing.Info(string.Format("Failed to launch {0}.", url));
+                }
             }
-            catch (Exception)
+            else
             {
-                Tracing.Info(string.Format("Failed to Launch http://localhost:{0}/.", parameters.Port));
+                Tracing.Info(string.Format("Browse to {0} to view the site.", url));
             }
+      
             Tracing.Info("Press 'Q' to stop the web host...");
             ConsoleKeyInfo key;
             do
@@ -86,12 +89,12 @@ namespace Pretzel.Commands
             Tracing.Info(string.Format("File change: {0}", file));
 
             var context = Generator.BuildContext(parameters.Path);
-            engine.Process(context);
+            engine.Process(context, true);
         }
 
         public void WriteHelp(TextWriter writer)
         {
-            parameters.WriteOptions(writer, "-t", "-d", "-p");
+            parameters.WriteOptions(writer, "-t", "-d", "-p", "--nobrowser");
         }
     }
 }

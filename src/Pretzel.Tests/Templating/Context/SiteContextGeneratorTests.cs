@@ -146,6 +146,22 @@ namespace Pretzel.Tests.Templating.Context
         }
 
         [Fact]
+        public void site_context_pages_have_correct_url()
+        {
+            // arrange
+            fileSystem.AddFile(@"C:\TestSite\Index.md", new MockFileData(ToPageContent("# Title")));
+            fileSystem.AddFile(@"C:\TestSite\SubFolder\SomeFile.md", new MockFileData(ToPageContent("# Title")));
+
+            // act
+            var siteContext = generator.BuildContext(@"C:\TestSite");
+
+            // assert
+            Assert.Equal("/Index.html", siteContext.Pages[0].Url);
+            Assert.Equal("/SubFolder/SomeFile.html", siteContext.Pages[1].Url);
+        }
+
+
+        [Fact]
         public void site_context_does_not_cache_page()
         {
             // arrange
@@ -253,6 +269,28 @@ title: Title
         {
             var result = SiteContextGenerator.GetTitle(@"C:\temp\foo-bar-baz-qak-foobar_baz.md");
             Assert.Equal("foo-bar-baz-qak-foobar_baz", result);
+        }
+
+        [Fact]
+        public void IsSpecialPath_Scenarios_AreWorking()
+        {
+            Func<string, bool> function = SiteContextGenerator.IsSpecialPath;
+
+            // underscores are ignored
+            Assert.False(function("folder"));
+            Assert.True(function("_folder"));
+
+            // .htaccess is included
+            Assert.False(function(".htaccess"));
+            Assert.True(function(".something-else"));
+            
+            // temp files are ignored
+            Assert.True(function("some-file.tmp"));
+            Assert.True(function("some-file.TMP"));
+            Assert.False(function("another-file.bar"));
+
+            // and these ones are causing me headaches in Sublime
+            Assert.True(function(@"docs\pages\features\.a4agat3qqt3.tmp"));
         }
     }
 }

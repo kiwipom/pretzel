@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using HtmlAgilityPack;
+using Pretzel.Logic.Extensibility;
 using Pretzel.Logic.Templating.Context;
 using dotless.Core;
 using dotless.Core.Importers;
@@ -41,7 +42,7 @@ namespace Pretzel.Logic.Minification
             //Process to see if the site has a CSS file that doesn't exist, and should be created from LESS files.
             //This is "smarter" than just compiling all Less files, which will crash if they're part of a larger Less project 
             //ie, one file pulls in imports, individually they don't know about each other but use variables
-            foreach (var file in siteContext.Pages.Where(p => p.OutputFile.EndsWith(".html")))
+            foreach (var file in siteContext.Pages.Where(p => p.OutputFile.EndsWith(".html") && fileSystem.File.Exists(p.OutputFile)))
             {
                 var doc = new HtmlDocument();
                 var fileContents = fileSystem.File.ReadAllText(file.OutputFile);
@@ -52,9 +53,12 @@ namespace Pretzel.Logic.Minification
                     foreach(HtmlNode link in nodes)
                     {
                         var cssfile = link.Attributes["href"].Value;
-                        if (cssfile.StartsWith("http"))
-                            continue;
 
+                        // If the file is not local, ignore it
+                        var matchingIgnoreProtocol = new[] {"http", "https", "//"}.FirstOrDefault(cssfile.StartsWith);
+                        if(matchingIgnoreProtocol != null)
+                            continue;
+                        
                         //If the file exists, ignore it
                         if (File.Exists(Path.Combine(siteContext.OutputFolder, cssfile)))
                             continue;
@@ -93,6 +97,11 @@ namespace Pretzel.Logic.Minification
             {
                 this.fileSystem = fileSystem;
                 this.currentDirectory = Path.GetDirectoryName(currentDirectory);
+            }
+
+            public byte[] GetBinaryFileContents(string fileName)
+            {
+                return fileSystem.File.ReadAllBytes(MapToFullPath(fileName));
             }
 
             public string GetFileContents(string fileName)

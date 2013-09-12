@@ -33,56 +33,67 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AjaxMin">
+    <Reference Include="AjaxMin, Version=4.44.4396.18853, Culture=neutral, PublicKeyToken=21ef50ce11b5d80f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\AjaxMin.4.44.4396.18853\lib\net20\AjaxMin.dll</HintPath>
     </Reference>
-    <Reference Include="dotless.Core">
-      <HintPath>..\packages\dotless.1.2.2.0\lib\dotless.Core.dll</HintPath>
+    <Reference Include="dotless.Core, Version=1.3.1.0, Culture=neutral, PublicKeyToken=96b446c9e63eae34, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\dotless.1.3.1.0\lib\dotless.Core.dll</HintPath>
     </Reference>
-    <Reference Include="DotLiquid, Version=1.6.1.0, Culture=neutral, PublicKeyToken=82e46016ecf9f07c, processorArchitecture=MSIL">
-      <HintPath>..\..\libs\DotLiquid.dll</HintPath>
+    <Reference Include="DotLiquid, Version=1.7.0.0, Culture=neutral, PublicKeyToken=82e46016ecf9f07c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\DotLiquid.1.7.0\lib\NET40\DotLiquid.dll</HintPath>
     </Reference>
-    <Reference Include="HtmlAgilityPack">
-      <HintPath>..\packages\HtmlAgilityPack.1.4.3\lib\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="HtmlAgilityPack, Version=1.4.6.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\Net40\HtmlAgilityPack.dll</HintPath>
     </Reference>
-    <Reference Include="MarkdownDeep">
-      <HintPath>..\packages\MarkdownDeep.NET.1.4\lib\.NetFramework 3.5\MarkdownDeep.dll</HintPath>
+    <Reference Include="MarkdownDeep, Version=1.5.4615.26275, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MarkdownDeep.NET.1.5\lib\.NetFramework 3.5\MarkdownDeep.dll</HintPath>
     </Reference>
     <Reference Include="NDesk.Options">
       <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
     </Reference>
-    <Reference Include="RazorEngine">
-      <HintPath>..\packages\RazorEngine.3.0.8\lib\net40\RazorEngine.dll</HintPath>
+    <Reference Include="RazorEngine, Version=3.2.0.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RazorEngine.3.2.0\lib\net40\RazorEngine.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.IO.Abstractions, Version=1.4.0.13, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="System.IO.Abstractions, Version=1.4.0.44, Culture=neutral, PublicKeyToken=d480b5b72fb413da, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.IO.Abstractions.1.4.0.13\lib\net35\System.IO.Abstractions.dll</HintPath>
+      <HintPath>..\packages\System.IO.Abstractions.1.4.0.44\lib\net35\System.IO.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
-      <HintPath>..\packages\RazorEngine.3.0.8\lib\net40\System.Web.Razor.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.20715.0\lib\net40\System.Web.Razor.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="YamlDotNet.Core">
-      <HintPath>..\packages\YamlDotNet.Core.1.1.14\lib\YamlDotNet.Core.dll</HintPath>
+    <Reference Include="YamlDotNet.Core, Version=0.2.4818.23331, Culture=neutral, PublicKeyToken=2b53052c5884d7a1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\YamlDotNet.Core.1.2.1\lib\YamlDotNet.Core.dll</HintPath>
     </Reference>
-    <Reference Include="YamlDotNet.RepresentationModel">
-      <HintPath>..\packages\YamlDotNet.RepresentationModel.1.1.14\lib\YamlDotNet.RepresentationModel.dll</HintPath>
+    <Reference Include="YamlDotNet.RepresentationModel, Version=0.2.4818.23331, Culture=neutral, PublicKeyToken=2b53052c5884d7a1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\YamlDotNet.RepresentationModel.1.2.1\lib\YamlDotNet.RepresentationModel.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CommandParameters.cs" />
     <Compile Include="Exceptions\PageProcessingException.cs" />
+    <Compile Include="Extensibility\Extensions\AzureHostSupport.cs" />
     <Compile Include="Extensibility\Extensions\PrettifyUrlFilter.cs" />
+    <Compile Include="Extensibility\Extensions\VirtualDirectorySupport.cs" />
     <Compile Include="Extensibility\Extensions\SlugifyFilter.cs" />
+    <Compile Include="Extensibility\IAdditionalIngredient.cs" />
     <Compile Include="Extensibility\IContentTransform.cs" />
     <Compile Include="Extensibility\Extensions\WebSequenceDiagrams.cs" />
     <Compile Include="Extensibility\IHaveCommandLineArgs.cs" />
@@ -94,9 +105,11 @@
     <Compile Include="Import\BloggerImport.cs" />
     <Compile Include="Import\HtmlToMarkdownConverter.cs" />
     <Compile Include="Import\WordpressImport.cs" />
+    <Compile Include="Liquid\HighlightBlock.cs" />
+    <Compile Include="Liquid\XmlEscapeFilter.cs" />
     <Compile Include="Minification\FileSystemExtensions.cs" />
     <Compile Include="Minification\LessTransform.cs" />
-    <Compile Include="Minification\ITransform.cs" />
+    <Compile Include="Extensibility\ITransform.cs" />
     <Compile Include="Minification\JsMinifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Liquid.Designer.cs">
@@ -109,11 +122,36 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Razor.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\RazorAzure.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RazorAzure.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\RazorCsProject.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RazorCsProject.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="Resources\RazorAzure\Shim.cs" />
+    <None Include="Resources\RazorCsProject\Category_cs" />
+    <None Include="Resources\RazorCsProject\NonProcessedPage_cs" />
+    <None Include="Resources\RazorCsProject\Page_cs" />
+    <None Include="Resources\RazorCsProject\PageContext_cs" />
+    <None Include="Resources\RazorCsProject\Paginator_cs" />
+    <None Include="Resources\RazorCsProject\SiteContext_cs" />
+    <None Include="Resources\RazorCsProject\Tag_cs" />
+    <None Include="Resources\RazorCsProject\AssemblyInfo_cs" />
+    <Compile Include="Properties\RazorWiki.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RazorWiki.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SanityCheck.cs" />
     <Compile Include="Templating\Context\Category.cs" />
     <Compile Include="Templating\Context\NonProcessedPage.cs" />
     <Compile Include="Templating\Context\Page.cs" />
@@ -159,6 +197,18 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\RazorAzure.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>RazorAzure.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\RazorCsProject.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>RazorCsProject.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\RazorWiki.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>RazorWiki.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Liquid\Rss.liquid" />
@@ -194,6 +244,12 @@
     <None Include="Resources\logo.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\RazorCsProject\NuGet_Config" />
+    <None Include="Resources\RazorCsProject\NuGet_targets" />
+    <None Include="Resources\RazorCsProject\packages_config" />
+    <None Include="Resources\RazorCsProject\Web_config" />
+    <None Include="Resources\RazorWiki\index.md" />
+    <None Include="Resources\RazorWiki\layout.cshtml" />
     <None Include="Resources\Razor\About.cshtml" />
     <None Include="Resources\Razor\Atom.cshtml" />
     <None Include="Resources\Razor\Config.cshtml" />
@@ -202,6 +258,13 @@
     <None Include="Resources\Razor\Layout.cshtml" />
     <None Include="Resources\Razor\Post.cshtml" />
     <None Include="Resources\Razor\Rss.cshtml" />
+    <None Include="Resources\RazorAzure\Shim.csproj" />
+    <None Include="Resources\RazorAzure\Shim.sln" />
+    <None Include="Resources\RazorCsProject\NuGet_exe" />
+    <None Include="Resources\RazorCsProject\LayoutProject_csproj" />
+    <None Include="Resources\RazorCsProject\LayoutSolution_sln" />
+    <Content Include="Resources\RazorWiki\default.css" />
+    <Content Include="Resources\RazorWiki\style.css" />
     <Content Include="Resources\Style.css" />
   </ItemGroup>
   <ItemGroup>

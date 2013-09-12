@@ -17,3 +17,10 @@ _ReSharper.*
 deploy-to-ec2*
 TestResults/
 build/
+
+
+CommonAssemblyInfo.cs
+Thumbs.db
+
+*.orig
+

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Pretzel.Logic.Extensions;
 using Xunit;
 
@@ -43,26 +44,13 @@ namespace Pretzel.Tests
             [Fact]
             public void RemoveHeader_WithSampleValue_ContainsRestOfDocument()
             {
-                const string header = @"---
-                        layout: post
-                        title: This is a test jekyll document
-                        description: TEST ALL THE THINGS
-                        date: 2012-01-30
-                        tags : 
-                        - test
-                        - alsotest
-                        - lasttest
-                        ---
-            
-                        ##Test
-            
-                        This is a test of YAML parsing";
+                var input = File.ReadAllText("data\\yaml-header-input.md");
+                var expected = File.ReadAllText("data\\markdown-no-header-output.md");
 
-                var result = header.ExcludeHeader();
+                var actual = input.ExcludeHeader();
 
-                Assert.Equal("##Test\r\n            \r\n                        This is a test of YAML parsing", result);
+                Assert.Equal(expected, actual);
             }
-
 
             [Fact]
             public void YamlHeader_WhenNoMetadataSet_ReturnsEmptyDictionary()

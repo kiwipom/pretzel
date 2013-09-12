@@ -4,8 +4,8 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
 using Pretzel.Logic.Commands;
+using Pretzel.Logic.Extensibility;
 using Pretzel.Logic.Extensions;
-using Pretzel.Logic.Minification;
 using Pretzel.Logic.Templating.Context;
 
 namespace Pretzel.Commands
@@ -53,7 +53,7 @@ namespace Pretzel.Commands
 
         public void WriteHelp(TextWriter writer)
         {
-            parameters.WriteOptions(writer, "-t", "-p");
+            parameters.WriteOptions(writer, "-t", "-p", "-d");
         }
     }
 }
